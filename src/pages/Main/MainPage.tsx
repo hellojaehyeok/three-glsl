@@ -1,5 +1,7 @@
+import Contents from './components/Contents';
+
 const MainPage = () => {
-  return <>Main</>;
+  return <Contents />;
 };
 
 export default MainPage;
