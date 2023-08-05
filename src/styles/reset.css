@@ -4,21 +4,13 @@
   box-sizing: border-box;
 }
 
-body,
-html {
-  overscroll-behavior: none;
-  background-color: #000000;
-  height: 100vh;
-  width: 100%;
-}
-
-main {
+.glitch-shader-images-container {
   position: fixed;
   width: 100%;
   height: 100vh;
 }
 
-.scrollable {
+.glitch-shader-images-scrollable {
   position: absolute;
   top: 0;
   left: 0;
@@ -26,35 +18,12 @@ main {
   will-change: transform;
 }
 
-.image-container {
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-h1 {
-  position: absolute;
-  left: 0;
-  top: 60%;
-  left: 55%;
-  z-index: 10;
-  color: #ffffff;
-  mix-blend-mode: difference;
-}
-
-img {
-  position: absolute;
-  width: 50%;
-  height: 60%;
-  visibility: hidden;
-}
-
-canvas {
+.glitch-shader-images-container canvas {
   position: fixed;
   z-index: -10;
   top: 0;
   left: 0;
+}
+.glitch-shader-images-container img {
+  visibility: hidden;
 }
