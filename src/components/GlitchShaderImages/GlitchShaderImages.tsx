@@ -16,13 +16,14 @@ const GlitchShaderImages = ({ children, effectEase = 0.1 }: { children: ReactNod
     const container = document.querySelector(`.${classNamePrefix}-container`) as HTMLDivElement;
     const scrollable = document.querySelector(`.${classNamePrefix}-scrollable`) as HTMLDivElement;
     const domImages = container.querySelectorAll('img') as NodeListOf<HTMLImageElement>;
-    const meshImages: Mesh[] = [];
+    document.body.style.height = `${scrollable.getBoundingClientRect().height}px`;
 
-    let perspective = 1000;
+    const perspective = 1000;
     const fov = (180 * (2 * Math.atan(window.innerHeight / 2 / perspective))) / Math.PI;
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(fov, getViewport().aspectRatio, 1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const meshImages: Mesh[] = [];
 
     let currentScroll = 0;
     let targetScroll = 0;
@@ -34,7 +35,6 @@ const GlitchShaderImages = ({ children, effectEase = 0.1 }: { children: ReactNod
     }
 
     function initCanvas() {
-      document.body.style.height = `${scrollable.getBoundingClientRect().height}px`;
       camera.position.set(0, 0, perspective);
       domImages.forEach(img => {
         const meshImage = createMeshImage(img);

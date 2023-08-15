@@ -25,5 +25,8 @@
     "react-dom": "18.2.0",
     "three": "^0.155.0",
     "typescript": "5.1.6"
+  },
+  "devDependencies": {
+    "raw-loader": "^4.0.2"
   }
 }

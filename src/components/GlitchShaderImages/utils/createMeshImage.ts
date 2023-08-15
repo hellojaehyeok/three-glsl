@@ -1,11 +1,13 @@
 import * as THREE from 'three';
-import { fragmentShader } from '../shader/fragmentShader';
-import { vertexShader } from '../shader/vertexShader';
+import fragmentShader from '../shader/fragmentShader.glsl';
+import vertexShader from '../shader/vertexShader.glsl';
 import { getElementDimensions } from './getElementDimensions';
 
-export function createMeshImage(element: HTMLImageElement) {
+const curvedNormalization = 0.0003;
+
+export function createMeshImage(imageElement: HTMLImageElement) {
   const geometry = new THREE.PlaneGeometry(1, 1, 100, 100);
-  const texture = new THREE.TextureLoader().load(element.src);
+  const texture = new THREE.TextureLoader().load(imageElement.src);
   const uniforms = {
     uTexture: { value: texture },
     uOffset: { value: new THREE.Vector2(0, 0) },
@@ -19,15 +21,11 @@ export function createMeshImage(element: HTMLImageElement) {
   });
   const mesh = new THREE.Mesh(geometry, material);
 
-  const { offset, sizes } = getElementDimensions(element);
-  mesh.position.set(sizes.x, sizes.y, 0);
-  mesh.scale.set(offset.x, offset.y, 1);
-
   function updateMeshStatus(targetScroll: number, currentScroll: number) {
-    const { offset, sizes } = getElementDimensions(element);
-    mesh.position.set(sizes.x, sizes.y, 0);
-    mesh.scale.set(offset.x, offset.y, 1);
-    uniforms.uOffset.value.set(offset.x * 0.0, -(targetScroll - currentScroll) * 0.0003);
+    const { position, scale } = getElementDimensions(imageElement);
+    mesh.position.set(0, position.y, 0);
+    mesh.scale.set(scale.x, scale.y, 1);
+    uniforms.uOffset.value.set(0, -(targetScroll - currentScroll) * curvedNormalization);
   }
 
   return { mesh, updateMeshStatus };
