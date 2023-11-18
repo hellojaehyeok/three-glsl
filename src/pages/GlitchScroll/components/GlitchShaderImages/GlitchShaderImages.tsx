@@ -3,15 +3,26 @@ import { ReactNode, useEffect } from 'react';
 import { getViewport } from './utils/getViewport';
 import { lerp } from './utils/lerp';
 import { createMeshImage } from './utils/createMeshImage';
+import styled from '@emotion/styled';
 
 interface Mesh {
   mesh: THREE.Mesh;
   updateMeshStatus: (targetScroll: number, currentScroll: number) => void;
 }
 
+type Hex = string;
+
 const classNamePrefix = 'glitch-shader-images';
 
-const GlitchShaderImages = ({ children, effectEase = 0.1 }: { children: ReactNode; effectEase?: number }) => {
+const GlitchShaderImages = ({
+  children,
+  effectEase = 0.1,
+  background = 'ffffff',
+}: {
+  children: ReactNode;
+  effectEase?: number;
+  background?: Hex;
+}) => {
   useEffect(() => {
     const container = document.querySelector(`.${classNamePrefix}-container`) as HTMLDivElement;
     const scrollable = document.querySelector(`.${classNamePrefix}-scrollable`) as HTMLDivElement;
@@ -24,6 +35,7 @@ const GlitchShaderImages = ({ children, effectEase = 0.1 }: { children: ReactNod
     const camera = new THREE.PerspectiveCamera(fov, getViewport().aspectRatio, 1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     const meshImages: Mesh[] = [];
+    scene.background = new THREE.Color(Number(`0x${background}`));
 
     let currentScroll = 0;
     let targetScroll = 0;
@@ -66,13 +78,41 @@ const GlitchShaderImages = ({ children, effectEase = 0.1 }: { children: ReactNod
     return () => {
       window.removeEventListener('resize', handleWindowResize);
     };
-  }, [effectEase]);
+  }, [background, effectEase]);
 
   return (
-    <div className={`${classNamePrefix}-container`}>
-      <div className={`${classNamePrefix}-scrollable`}>{children}</div>
-    </div>
+    <Container>
+      <div className={`${classNamePrefix}-container`}>
+        <div className={`${classNamePrefix}-scrollable`}>{children}</div>
+      </div>
+    </Container>
   );
 };
 
 export default GlitchShaderImages;
+
+const Container = styled.div`
+  .glitch-shader-images-container {
+    position: fixed;
+    width: 100%;
+    height: 100vh;
+  }
+
+  .glitch-shader-images-scrollable {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    will-change: transform;
+  }
+
+  .glitch-shader-images-container canvas {
+    position: fixed;
+    z-index: -10;
+    top: 0;
+    left: 0;
+  }
+  .glitch-shader-images-container img {
+    visibility: hidden;
+  }
+`;
