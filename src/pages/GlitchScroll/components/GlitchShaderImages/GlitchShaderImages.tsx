@@ -1,20 +1,34 @@
 import * as THREE from 'three';
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useRef } from 'react';
 import { getViewport } from './utils/getViewport';
 import { lerp } from './utils/lerp';
 import { createMeshImage } from './utils/createMeshImage';
+import styled from '@emotion/styled';
 
 interface Mesh {
   mesh: THREE.Mesh;
   updateMeshStatus: (targetScroll: number, currentScroll: number) => void;
 }
 
-const classNamePrefix = 'glitch-shader-images';
+type Hex = string;
 
-const GlitchShaderImages = ({ children, effectEase = 0.1 }: { children: ReactNode; effectEase?: number }) => {
+const GlitchShaderImages = ({
+  children,
+  effectEase = 0.1,
+  background = 'ffffff',
+}: {
+  children: ReactNode;
+  effectEase?: number;
+  background?: Hex;
+}) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const scrollableRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    const container = document.querySelector(`.${classNamePrefix}-container`) as HTMLDivElement;
-    const scrollable = document.querySelector(`.${classNamePrefix}-scrollable`) as HTMLDivElement;
+    if (containerRef.current == null || scrollableRef.current == null) return;
+    const container = containerRef.current;
+    const scrollable = scrollableRef.current;
+
     const domImages = container.querySelectorAll('img') as NodeListOf<HTMLImageElement>;
     document.body.style.height = `${scrollable.getBoundingClientRect().height}px`;
 
@@ -24,6 +38,7 @@ const GlitchShaderImages = ({ children, effectEase = 0.1 }: { children: ReactNod
     const camera = new THREE.PerspectiveCamera(fov, getViewport().aspectRatio, 1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     const meshImages: Mesh[] = [];
+    scene.background = new THREE.Color(Number(`0x${background}`));
 
     let currentScroll = 0;
     let targetScroll = 0;
@@ -66,13 +81,31 @@ const GlitchShaderImages = ({ children, effectEase = 0.1 }: { children: ReactNod
     return () => {
       window.removeEventListener('resize', handleWindowResize);
     };
-  }, [effectEase]);
+  }, [background, effectEase, containerRef, scrollableRef]);
 
   return (
-    <div className={`${classNamePrefix}-container`}>
-      <div className={`${classNamePrefix}-scrollable`}>{children}</div>
-    </div>
+    <Container ref={containerRef}>
+      <Scrollable ref={scrollableRef}>{children}</Scrollable>
+    </Container>
   );
 };
 
 export default GlitchShaderImages;
+
+const Container = styled.div`
+  position: fixed;
+  width: 100%;
+  height: 100vh;
+`;
+
+const Scrollable = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  will-change: transform;
+  img {
+    /* 클릭이벤트를 위해 visibility 대신 opacity를 제어합니다. */
+    opacity: 0;
+  }
+`;
