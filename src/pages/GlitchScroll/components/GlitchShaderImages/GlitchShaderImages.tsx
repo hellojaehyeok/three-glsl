@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useRef } from 'react';
 import { getViewport } from './utils/getViewport';
 import { lerp } from './utils/lerp';
 import { createMeshImage } from './utils/createMeshImage';
@@ -12,8 +12,6 @@ interface Mesh {
 
 type Hex = string;
 
-const classNamePrefix = 'glitch-shader-images';
-
 const GlitchShaderImages = ({
   children,
   effectEase = 0.1,
@@ -23,9 +21,14 @@ const GlitchShaderImages = ({
   effectEase?: number;
   background?: Hex;
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const scrollableRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    const container = document.querySelector(`.${classNamePrefix}-container`) as HTMLDivElement;
-    const scrollable = document.querySelector(`.${classNamePrefix}-scrollable`) as HTMLDivElement;
+    if (containerRef.current == null || scrollableRef.current == null) return;
+    const container = containerRef.current;
+    const scrollable = scrollableRef.current;
+
     const domImages = container.querySelectorAll('img') as NodeListOf<HTMLImageElement>;
     document.body.style.height = `${scrollable.getBoundingClientRect().height}px`;
 
@@ -78,13 +81,11 @@ const GlitchShaderImages = ({
     return () => {
       window.removeEventListener('resize', handleWindowResize);
     };
-  }, [background, effectEase]);
+  }, [background, effectEase, containerRef, scrollableRef]);
 
   return (
-    <Container>
-      <div className={`${classNamePrefix}-container`}>
-        <div className={`${classNamePrefix}-scrollable`}>{children}</div>
-      </div>
+    <Container ref={containerRef}>
+      <Scrollable ref={scrollableRef}>{children}</Scrollable>
     </Container>
   );
 };
@@ -92,27 +93,19 @@ const GlitchShaderImages = ({
 export default GlitchShaderImages;
 
 const Container = styled.div`
-  .glitch-shader-images-container {
-    position: fixed;
-    width: 100%;
-    height: 100vh;
-  }
+  position: fixed;
+  width: 100%;
+  height: 100vh;
+`;
 
-  .glitch-shader-images-scrollable {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    will-change: transform;
-  }
-
-  .glitch-shader-images-container canvas {
-    position: fixed;
-    z-index: -10;
-    top: 0;
-    left: 0;
-  }
-  .glitch-shader-images-container img {
-    visibility: hidden;
+const Scrollable = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  will-change: transform;
+  img {
+    /* 클릭이벤트를 위해 visibility 대신 opacity를 제어합니다. */
+    opacity: 0;
   }
 `;
